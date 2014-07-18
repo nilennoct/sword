@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html ng-app="SwordApp">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Sword</title>
+	<link rel="stylesheet" href="static/lib/bootstrap/dist/css/bootstrap.css"/>
+</head>
+<body ng-controller="GameCtrl">
+<header id="header">
+    <nav class="navbar navbar-default" role="navigation">
+        <div class="container">
+            <div class="navar-header">
+                <a class="navbar-brand" href="#/">Sword</a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li><a href="#/explore">Explore</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li dropdown>
+                    <a href="#" class="dropdown-toggle"><span ng-bind="gameData.username"></span> <span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="#">保存</a></li>
+                        <li><a href="#">设置</a></li>
+                        <li class="divider"></li>
+                        <li><a href="#">注销</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</header>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="list-group">
+                <a class="list-group-item" href="#/character">人物</a>
+                <a class="list-group-item" href="#/explore">探索</a>
+                <a class="list-group-item" href="#/swords">剑匣</a>
+                <a class="list-group-item" href="#/items">材料</a>
+            </div>
+        </div>
+        <div class="col-md-9" ng-view></div>
+    </div>
+</div>
+
+<script type="text/ng-template" id="character.html">
+<div class="row">
+    <div class="col-sm-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">属性</div>
+            <ul class="list-group">
+                <li class="list-group-item">力量 <span class="badge" ng-bind="gameData.attributes.str"></span> <span class="label label-default"><span class="glyphicon glyphicon-plus"></span></span></li>
+                <li class="list-group-item">体质 <span class="badge" ng-bind="gameData.attributes.con"></span></li>
+                <li class="list-group-item">灵巧 <span class="badge" ng-bind="gameData.attributes.dex"></span></li>
+                <li class="list-group-item">感知 <span class="badge" ng-bind="gameData.attributes.per"></span></li>
+                <li class="list-group-item" ng-show="gameData.attributes.free !== 0">可用点 <span class="badge" ng-bind="gameData.attributes.free"></span></li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">能力</div>
+            <ul class="list-group">
+                <li class="list-group-item">生命 <span class="badge" ng-bind="gameData.abilities.hp"></span></li>
+                <li class="list-group-item">攻击 <span class="badge" ng-bind="gameData.abilities.att"></span></li>
+                <li class="list-group-item">防御 <span class="badge" ng-bind="gameData.abilities.def"></span></li>
+                <li class="list-group-item">敏捷 <span class="badge" ng-bind="gameData.abilities.spd"></span></li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">人物</div>
+            <ul class="list-group">
+                <li class="list-group-item">名称 <span class="badge" ng-bind="gameData.username"></span></li>
+                <li class="list-group-item">等级 <span class="badge" ng-bind="gameData.level"></span></li>
+                <li class="list-group-item">经验 <span class="badge" ng-bind="gameData.exp"></span></li>
+            </ul>
+        </div>
+    </div>
+</div>
+</script>
+
+<script type="text/ng-template" id="explore.html">
+
+</script>
+
+<script type="text/ng-template" id="swords.html">
+<div class="row">
+    <div class="col-sm-3" ng-repeat="sword in gameData.swords">
+        <div class="panel panel-default" ng-class="{'panel-success': sword.equip}">
+            <div class="panel-heading" ng-bind="sword.name" tooltip="{{ sword.desc }}" tooltip-placement="bottom"></div>
+            <ul class="list-group">
+                <li class="list-group-item">攻击加成 <span class="badge" ng-bind="sword.parameters.att"></span></li>
+                <li class="list-group-item">防御加成 <span class="badge" ng-bind="sword.parameters.def"></span></li>
+                <li class="list-group-item">敏捷加成 <span class="badge" ng-bind="sword.parameters.spd"></span></li>
+                <li class="list-group-item">
+                    <div class="btn-group btn-group-xs">
+                        <button class="btn btn-success" ng-click="equipSword($index)">装备</button>
+                        <button class="btn btn-default" ng-click="unequipSword($index)" ng-show="sword.equip">卸下</button>
+                        <button class="btn btn-danger" ng-click="dropSword($index)">丢弃</button>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+</script>
+
+
+
+<script src="static/lib/jquery/dist/jquery.js"></script>
+<script src="static/lib/angular/angular.js"></script>
+<script src="static/lib/angular-route/angular-route.js"></script>
+<script src="static/lib/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+<script src="static/js/sword.app.js"></script>
+<script src="static/js/sword.controller.js"></script>
+<script src="static/js/sword.data.js"></script>
+</body>
+</html>
