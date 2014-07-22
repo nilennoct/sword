@@ -19,8 +19,8 @@
                 <li dropdown>
                     <a href="#" class="dropdown-toggle"><span ng-bind="gameData.username"></span> <span class="caret"></span></a>
                     <ul class="dropdown-menu" role="menu">
-                        <li><a href="#">保存</a></li>
-                        <li><a href="#">设置</a></li>
+                        <li><a href="javascript:void(0)" ng-click="saveGameData()">保存</a></li>
+                        <li><a href="javascript:void(0)" ng-click="openSettingModal()">设置</a></li>
                         <li class="divider"></li>
                         <li><a href="#">注销</a></li>
                     </ul>
@@ -50,10 +50,10 @@
         <div class="panel panel-default">
             <div class="panel-heading">属性</div>
             <ul class="list-group">
-                <li class="list-group-item">力量 <span class="badge" ng-bind="gameData.attributes.str"></span> <span class="label label-default"><span class="glyphicon glyphicon-plus"></span></span></li>
-                <li class="list-group-item">体质 <span class="badge" ng-bind="gameData.attributes.con"></span></li>
-                <li class="list-group-item">灵巧 <span class="badge" ng-bind="gameData.attributes.dex"></span></li>
-                <li class="list-group-item">感知 <span class="badge" ng-bind="gameData.attributes.per"></span></li>
+                <li class="list-group-item">力量 <span class="badge" ng-bind="gameData.attributes.str"></span> <span class="label label-default" ng-show="gameData.attributes.free > 0" ng-click="incAttribute('str')"><span class="glyphicon glyphicon-plus"></span></span></li>
+                <li class="list-group-item">体质 <span class="badge" ng-bind="gameData.attributes.con"></span> <span class="label label-default" ng-show="gameData.attributes.free > 0" ng-click="incAttribute('con')"><span class="glyphicon glyphicon-plus"></span></span></li>
+                <li class="list-group-item">灵巧 <span class="badge" ng-bind="gameData.attributes.dex"></span> <span class="label label-default" ng-show="gameData.attributes.free > 0" ng-click="incAttribute('dex')"><span class="glyphicon glyphicon-plus"></span></span></li>
+                <li class="list-group-item">感知 <span class="badge" ng-bind="gameData.attributes.per"></span> <span class="label label-default" ng-show="gameData.attributes.free > 0" ng-click="incAttribute('per')"><span class="glyphicon glyphicon-plus"></span></span></li>
                 <li class="list-group-item" ng-show="gameData.attributes.free !== 0">可用点 <span class="badge" ng-bind="gameData.attributes.free"></span></li>
             </ul>
         </div>
@@ -108,7 +108,22 @@
 </div>
 </script>
 
-
+<script type="text/ng-template" id="modal/setting.html">
+<div class="modal-header"><h4>设置</h4></div>
+<div class="modal-body">
+    <form class="form-horizontal">
+        <div class="input-group">
+            <label class="control-label col-sm-4" for="username">名称</label>
+            <div class="col-sm-8">
+                <input class="form-control" id="username" type="text" ng-model="gameData.username"/>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" type="button" ng-click="applySettings()">应用</button>
+</div>
+</script>
 
 <script src="static/lib/jquery/dist/jquery.js"></script>
 <script src="static/lib/angular/angular.js"></script>

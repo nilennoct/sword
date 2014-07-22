@@ -4,12 +4,12 @@
 
 var swordController = angular.module('SwordController', []);
 
-swordController.controller('GameCtrl', ['$scope', 'swordData', GameCtrl]);
+swordController.controller('GameCtrl', ['$scope', '$modal', 'swordData', GameCtrl]);
 swordController.controller('ExploreCtrl', ['$scope', ExploreCtrl]);
 
-function GameCtrl($scope, swordData) {
+function GameCtrl($scope, $modal, swordData) {
   $scope.gameData = {
-    id: 0,
+    id: 1628872110,
     username: '无名',
     level: 0,
     exp: 0,
@@ -18,7 +18,7 @@ function GameCtrl($scope, swordData) {
       con: 0, // hp, def
       dex: 0, // spd, evasion
       per: 0, // critical, evasion
-      free: 0
+      free: 5
     },
     parameters: {
       hp: 0,
@@ -53,6 +53,16 @@ function GameCtrl($scope, swordData) {
     items: []
   };
 
+  $scope.incAttribute = function incAttribute(attr) {
+    var attrs = $scope.gameData.attributes;
+    if (attr in attrs) {
+      attrs[attr]++;
+      attrs.free--;
+      $scope.commitAttributes().saveGameData();
+
+    }
+  };
+
   $scope.commitAttributes = function commitAttributes() {
     var attrs = $scope.gameData.attributes;
     $scope.gameData.parameters = {
@@ -60,7 +70,8 @@ function GameCtrl($scope, swordData) {
       att: attrs.str * 10 + attrs.dex + attrs.per,
       def: attrs.str + attrs.con * 10 + attrs.per,
       spd: attrs.dex * 8 + attrs.per
-    }
+    };
+    return $scope.calAbilities();
   };
 
   $scope.calAbilities = function calAbilities() {
@@ -68,10 +79,11 @@ function GameCtrl($scope, swordData) {
     var paramsS = $scope.gameData.equipment != null ? $scope.gameData.swords[$scope.gameData.equipment].parameters : null;
     $scope.gameData.abilities = {
       hp: paramsC.hp,
-      att: paramsC.att + paramsS ? paramsS.att : 0,
-      def: paramsC.def + paramsS ? paramsS.def : 0,
-      spd: paramsC.spd + paramsS ? paramsS.spd : 0
+      att: paramsC.att + (paramsS ? paramsS.att : 0),
+      def: paramsC.def + (paramsS ? paramsS.def : 0),
+      spd: paramsC.spd + (paramsS ? paramsS.spd : 0)
     };
+    return $scope;
   };
 
   $scope.equipSword = function equipSword($index) {
@@ -80,38 +92,56 @@ function GameCtrl($scope, swordData) {
     }
     $scope.gameData.equipment = $index;
     $scope.gameData.swords[$index].equip = true;
-    $scope.calAbilities();
-    saveGameData();
+    $scope.calAbilities().saveGameData();
   };
 
   $scope.unequipSword = function unequipSword($index) {
     $scope.gameData.swords[$index].equip = false;
     $scope.gameData.equipment = null;
-    $scope.calAbilities();
-    saveGameData();
+    $scope.calAbilities().saveGameData();
   };
 
   $scope.dropSword = function dropSword($index) {
     if ($scope.gameData.equipment == $index) $scope.gameData.equipment = null;
     $scope.gameData.swords.splice($index, 1);
-    $scope.calAbilities();
-    saveGameData();
+    $scope.calAbilities().saveGameData();
   };
 
-  if ( ! loadGameData()) {
-    $scope.commitAttributes();
-    $scope.calAbilities();
-    $scope.gameData.swords.push(createSword());
+  $scope.openSettingModal = function openSettingModal() {
+    var modalInstance = $modal.open({
+      templateUrl: 'modal/setting.html',
+      controller: settingModalCtrl,
+      size: 'sm',
+      scope: $scope
+    });
 
-    saveGameData();
-  }
+    modalInstance.result.then(function() {
+//      $scope.gameData.username = username;
+      $scope.gameData.id = crc32($scope.gameData.username);
+      if ( ! $scope.loadGameData($scope.gameData.id)) {
+        $scope.saveGameData();
+      }
+    }, function() {
+      $scope.gameData.username = angular.copy($scope.gameData.oldName);
+//      delete $scope.oldName;
+    });
+  };
 
-  function saveGameData() {
+  var settingModalCtrl = function settingModalCtrl($scope, $modalInstance) {
+    $scope.gameData.oldName = $scope.gameData.username;
+
+    $scope.applySettings = function applySettings() {
+      $modalInstance.close();
+    }
+  };
+
+  $scope.saveGameData = function saveGameData() {
     localStorage.setItem('gameData' + $scope.gameData.id, JSON.stringify($scope.gameData));
-  }
+    return $scope;
+  };
 
-  function loadGameData(id) {
-    if(typeof id === 'undefined') id = 0;
+  $scope.loadGameData = function loadGameData(id) {
+    if(typeof id === 'undefined') id = 1628872110;
     var savedGameData = localStorage.getItem('gameData' + id);
     if (savedGameData != null) {
       $scope.gameData = JSON.parse(savedGameData);
@@ -119,6 +149,14 @@ function GameCtrl($scope, swordData) {
     }
 
     return false;
+  };
+
+  if ( ! $scope.loadGameData()) {
+    $scope.commitAttributes();
+//    $scope.calAbilities();
+    $scope.gameData.swords.push(createSword());
+
+    $scope.saveGameData();
   }
 
   function createSword() {
